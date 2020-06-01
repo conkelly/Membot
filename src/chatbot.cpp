@@ -2,25 +2,30 @@
 #include <random>
 #include <algorithm>
 #include <ctime>
+#include<iostream> 
 
 #include "chatlogic.h"
 #include "graphnode.h"
 #include "graphedge.h"
 #include "chatbot.h"
+#include <stdio.h> 
 
 // constructor WITHOUT memory allocation
 ChatBot::ChatBot()
 {
+  
     // invalidate data handles
     _image = nullptr;
     _chatLogic = nullptr;
     _rootNode = nullptr;
+  
+  std::cout<<"\n";
 }
 
 // constructor WITH memory allocation
 ChatBot::ChatBot(std::string filename)
 {
-    std::cout << "ChatBot Constructor" << std::endl;
+    std::cout<< "ChatBot Constructor \n";
     
     // invalidate data handles
     _chatLogic = nullptr;
@@ -28,32 +33,60 @@ ChatBot::ChatBot(std::string filename)
 
     // load image into heap memory
     _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
+  std::cout<<"\n";
 }
 
 ChatBot::~ChatBot()
 {
-    std::cout << "ChatBot Destructor" << std::endl;
-
+    
+    std::cout<< "ChatBot Destructor \n";
     // deallocate heap memory
     if(_image != NULL) // Attention: wxWidgets used NULL and not nullptr
     {
         delete _image;
         _image = NULL;
     }
+  std::cout<<"\n";
 }
 
 //// STUDENT CODE
 ////
+ChatBot::ChatBot(const ChatBot &file){
+  std::cout << "Copy Constructor \n";
+  ChatBot::SetCurrentNode(file._currentNode); 
+  ChatBot::SetRootNode(file._rootNode); 
+  ChatBot::SetChatLogicHandle(file._chatLogic); 
+  _image = file._image; 
+  //file._image = nullptr;
+}
+
+
+ ChatBot& ChatBot::operator=(const ChatBot &file){
+   std::cout<< "Copy Assignment Operator \n";
+  	if (this == &file)
+   		return *this;
+  	delete _image; 
+  	_image = file._image; 
+  	ChatBot::SetCurrentNode(file._currentNode); 
+  	ChatBot::SetRootNode(file._rootNode); 
+  	ChatBot::SetChatLogicHandle(file._chatLogic); 
+  	_image = file._image; 
+  	//file._image = nullptr;
+  	return *this; }
 
 ////
 //// EOF STUDENT CODE
 
 void ChatBot::ReceiveMessageFromUser(std::string message)
 {
+ 
     // loop over all edges and keywords and compute Levenshtein distance to query
     typedef std::pair<GraphEdge *, int> EdgeDist;
+  //std::cout<<"EdgeDist location: ";
+   // printf("%s",EdgeDist);
+  std::cout<<"\n";
     std::vector<EdgeDist> levDists; // format is <ptr,levDist>
-
+    std::cout<<"\n";
     for (size_t i = 0; i < _currentNode->GetNumberOfChildEdges(); ++i)
     {
         GraphEdge *edge = _currentNode->GetChildEdgeAtIndex(i);
@@ -84,6 +117,7 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
 
 void ChatBot::SetCurrentNode(GraphNode *node)
 {
+  //std::cout<<"ChatBot::SetCurrentNode";
     // update pointer to current node
     _currentNode = node;
 
@@ -99,6 +133,7 @@ void ChatBot::SetCurrentNode(GraphNode *node)
 
 int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
 {
+  	//std::cout<<"ChatBot::ComputeLevenshteinDistance";
     // convert both strings to upper-case before comparing
     std::transform(s1.begin(), s1.end(), s1.begin(), ::toupper);
     std::transform(s2.begin(), s2.end(), s2.begin(), ::toupper);
@@ -113,17 +148,19 @@ int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
         return m;
 
     size_t *costs = new size_t[n + 1];
-
+  
     for (size_t k = 0; k <= n; k++)
         costs[k] = k;
 
     size_t i = 0;
+  
     for (std::string::const_iterator it1 = s1.begin(); it1 != s1.end(); ++it1, ++i)
     {
         costs[0] = i + 1;
-        size_t corner = i;
-
+        size_t corner = i; 
+      
         size_t j = 0;
+      
         for (std::string::const_iterator it2 = s2.begin(); it2 != s2.end(); ++it2, ++j)
         {
             size_t upper = costs[j + 1];
